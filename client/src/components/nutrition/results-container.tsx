@@ -29,9 +29,21 @@ const ResultsContainer = ({ foodData, onSearchAgain }: ResultsContainerProps) =>
 
   return (
     <div id="results-container" className="max-w-4xl mx-auto animate-in fade-in">
+      {/* Back button */}
+      <div className="mb-4 animate-in slide-in-from-left-5 duration-300">
+        <Button
+          onClick={onSearchAgain}
+          variant="outline"
+          className="flex items-center gap-2 transform transition-all hover:translate-x-[-5px] group"
+        >
+          <span className="material-icons group-hover:animate-pulse">arrow_back</span>
+          <span>Back to Search</span>
+        </Button>
+      </div>
+    
       <div className="mb-8 text-center">
-        <h2 className="text-2xl font-semibold mb-2 dark:text-white">{name}</h2>
-        <p className="text-neutral-600 dark:text-neutral-400">{description}</p>
+        <h2 className="text-2xl font-semibold mb-2 dark:text-white animate-in zoom-in duration-500">{name}</h2>
+        <p className="text-neutral-600 dark:text-neutral-400 animate-in fade-in duration-700">{description}</p>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
