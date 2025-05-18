@@ -70,25 +70,41 @@ export async function detectFoodInImage(imageBuffer: Buffer): Promise<string | n
     // Get the label annotations
     const labels = response.data.responses[0].labelAnnotations || [];
 
-    // Filter out food-related labels
+    // Check specifically for our target fruits first (apple, orange, watermelon, avocado)
+    const targetFruits = ['apple', 'orange', 'watermelon', 'avocado'];
+    
+    for (const label of labels) {
+      const description = label.description.toLowerCase();
+      for (const fruit of targetFruits) {
+        if (description.includes(fruit)) {
+          console.log(`Detected target fruit: ${fruit}`);
+          return fruit;
+        }
+      }
+    }
+    
+    // Then filter food-related labels if no target fruit was found
     const foodLabels = labels.filter(label => {
       const description = label.description.toLowerCase();
       const foodRelatedTerms = [
         'food', 'fruit', 'vegetable', 'meat', 'dish', 'cuisine', 'ingredient',
         'meal', 'snack', 'breakfast', 'lunch', 'dinner', 'dessert', 'beverage',
-        'drink', 'recipe', 'nutrition', 'dietary', 'cooking', 'baking'
+        'drink', 'recipe', 'nutrition', 'dietary', 'cooking', 'baking', 'produce',
+        'snack', 'sweet', 'edible', 'salad', 'juice', 'organic'
       ];
       
-      return foodRelatedTerms.some(term => description.includes(term)) || label.score > 0.8;
+      return foodRelatedTerms.some(term => description.includes(term)) || label.score > 0.7;
     });
 
     // Return the highest confidence food label
     if (foodLabels.length > 0) {
+      console.log(`Detected food: ${foodLabels[0].description} (score: ${foodLabels[0].score})`);
       return foodLabels[0].description;
     }
 
     // If no food-specific labels are found, try the highest confidence general label
     if (labels.length > 0) {
+      console.log(`Falling back to general label: ${labels[0].description}`);
       return labels[0].description;
     }
 
