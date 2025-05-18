@@ -42,8 +42,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...healthInfo
       };
       
-      // Store the result in history (if needed)
-      // This can be expanded in the future
+      try {
+        // Store the search history and result in database
+        // Create a unique external ID for this food
+        const externalId = `spoonacular-${Date.now()}`;
+        
+        // Add food result to database if needed
+        await storage.addFoodResult({
+          externalId,
+          foodName: result.name,
+          description: result.description || "",
+          imageUrl: result.image,
+          nutritionData: result.nutrition,
+          healthBenefits: result.healthBenefits,
+          cautions: result.cautions,
+          additionalInfo: result.additionalInfo || null,
+          similarFoods: result.similarFoods || null,
+          createdAt: new Date().toISOString()
+        });
+        
+        // We can add search history here if user authentication is implemented
+        // For now, we'll skip that part
+      } catch (dbError) {
+        // Just log database errors, don't fail the request
+        console.error("Error storing food result in database:", dbError);
+      }
       
       res.json(result);
     } catch (error) {
@@ -98,6 +121,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...foodInfo,
         ...healthInfo
       };
+      
+      try {
+        // Store the search history and result in database
+        // Create a unique external ID for this food
+        const externalId = `spoonacular-${Date.now()}`;
+        
+        // Add food result to database if needed
+        await storage.addFoodResult({
+          externalId,
+          foodName: result.name,
+          description: result.description || "",
+          imageUrl: result.image,
+          nutritionData: result.nutrition,
+          healthBenefits: result.healthBenefits,
+          cautions: result.cautions,
+          additionalInfo: result.additionalInfo || null,
+          similarFoods: result.similarFoods || null,
+          createdAt: new Date().toISOString()
+        });
+        
+        // We can add search history with image info here if user authentication is implemented
+        // For now, we'll skip that part
+      } catch (dbError) {
+        // Just log database errors, don't fail the request
+        console.error("Error storing food result in database:", dbError);
+      }
       
       res.json(result);
     } catch (error) {
