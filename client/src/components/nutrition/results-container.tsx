@@ -177,7 +177,7 @@ const ResultsContainer = ({ foodData, onSearchAgain }: ResultsContainerProps) =>
         <Button 
           type="button"
           id="analyze-again-btn"
-          className="bg-primary-500 hover:bg-primary-600 text-white font-medium py-4 px-6 h-auto text-lg shadow-lg transition-all transform hover:scale-105"
+          className="bg-gradient-to-r from-neutral-800 to-neutral-900 hover:from-neutral-900 hover:to-black text-white font-medium py-4 px-6 h-auto text-lg shadow-lg transition-all transform hover:scale-105"
           onClick={onSearchAgain}
         >
           <span className="material-icons mr-2">add_circle</span>

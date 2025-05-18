@@ -104,48 +104,61 @@ const SearchSection = ({
       </h2>
       
       <div className="mb-6">
-        {/* Text input */}
-        <div className="relative">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-neutral-500">
-            <span className="material-icons">search</span>
-          </span>
-          <input 
-            type="text" 
-            id="food-input" 
-            placeholder="Enter a food name (e.g., apple, orange, watermelon, avocado)" 
-            className="w-full pl-10 pr-24 py-4 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition bg-white dark:bg-neutral-900 dark:border-neutral-700 dark:text-white"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyPress={handleKeyPress}
-          />
-          <div className="absolute inset-y-0 right-0 flex items-center pr-2 space-x-1">
-            {/* Voice input button */}
-            <button 
-              type="button" 
-              id="voice-btn" 
-              className={`p-2 rounded-full hover:bg-secondary-50 dark:hover:bg-neutral-700 transition transform hover:scale-110 ${isListening ? 'text-secondary-500 animate-pulse' : 'text-neutral-600 hover:text-secondary-500'}`}
-              title="Search with voice"
-              onClick={handleVoiceClick}
-            >
-              <span className="material-icons">mic</span>
-            </button>
-            
-            {/* Image upload button */}
-            <label 
-              htmlFor="image-upload" 
-              className="p-2 text-neutral-600 hover:text-secondary-500 transition rounded-full hover:bg-secondary-50 dark:hover:bg-neutral-700 cursor-pointer transform hover:scale-110"
-              title="Upload food image"
-            >
-              <span className="material-icons">image</span>
-              <input 
-                type="file" 
-                id="image-upload" 
-                accept="image/*" 
-                className="hidden"
-                onChange={handleImageUpload}
-              />
-            </label>
+        {/* Search and analyze section */}
+        <div className="flex flex-col md:flex-row gap-3">
+          <div className="relative flex-grow">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-neutral-500">
+              <span className="material-icons">search</span>
+            </span>
+            <input 
+              type="text" 
+              id="food-input" 
+              placeholder="Enter a food name (e.g., apple, orange, watermelon, avocado)" 
+              className="w-full pl-10 pr-24 py-4 border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 transition bg-white dark:bg-neutral-900 dark:border-neutral-700 dark:text-white"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyPress={handleKeyPress}
+            />
+            <div className="absolute inset-y-0 right-0 flex items-center pr-2 space-x-1">
+              {/* Voice input button */}
+              <button 
+                type="button" 
+                id="voice-btn" 
+                className={`p-2 rounded-full hover:bg-secondary-50 dark:hover:bg-neutral-700 transition transform hover:scale-110 ${isListening ? 'text-secondary-500 animate-pulse' : 'text-neutral-600 hover:text-secondary-500'}`}
+                title="Search with voice"
+                onClick={handleVoiceClick}
+              >
+                <span className="material-icons">mic</span>
+              </button>
+              
+              {/* Image upload button */}
+              <label 
+                htmlFor="image-upload" 
+                className="p-2 text-neutral-600 hover:text-secondary-500 transition rounded-full hover:bg-secondary-50 dark:hover:bg-neutral-700 cursor-pointer transform hover:scale-110"
+                title="Upload food image"
+              >
+                <span className="material-icons">image</span>
+                <input 
+                  type="file" 
+                  id="image-upload" 
+                  accept="image/*" 
+                  className="hidden"
+                  onChange={handleImageUpload}
+                />
+              </label>
+            </div>
           </div>
+          
+          {/* Analyze button next to textbox */}
+          <Button 
+            type="button"
+            id="inline-analyze-btn"
+            className="bg-gradient-to-r from-neutral-800 to-neutral-900 hover:from-neutral-900 hover:to-black text-white font-medium py-4 px-4 min-w-[120px] h-auto shadow-lg transition-all transform hover:scale-105"
+            onClick={onSearch}
+          >
+            <span className="material-icons mr-1">analytics</span>
+            Analyze
+          </Button>
         </div>
       </div>
       
@@ -159,17 +172,6 @@ const SearchSection = ({
           onRemove={removeImage} 
         />
       )}
-      
-      {/* Analyze button */}
-      <Button 
-        type="button"
-        id="analyze-btn"
-        className={`w-full bg-primary-500 hover:bg-primary-600 text-white font-medium py-6 h-auto mt-4 text-lg shadow-lg transition-all transform ${bounceEffect ? 'animate-bounce' : 'hover:scale-105'}`}
-        onClick={onSearch}
-      >
-        <span className="material-icons mr-2">analytics</span>
-        Analyze Food
-      </Button>
     </section>
   );
 };

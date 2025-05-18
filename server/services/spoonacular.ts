@@ -42,6 +42,9 @@ export interface FoodInfo {
     }[];
   };
   similarFoods: SimilarFood[];
+  healthBenefits?: string[];
+  cautions?: string[];
+  additionalInfo?: string;
 }
 
 /**
