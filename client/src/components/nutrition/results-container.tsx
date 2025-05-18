@@ -172,17 +172,16 @@ const ResultsContainer = ({ foodData, onSearchAgain }: ResultsContainerProps) =>
         </Card>
       )}
       
-      {/* Search again button */}
-      <div className="text-center mb-10">
+      {/* Analyze another food button */}
+      <div className="text-center mb-10 animate-in fade-in duration-700 delay-700">
         <Button 
           type="button"
-          id="search-again-btn"
-          className="bg-neutral-100 hover:bg-neutral-200 text-neutral-800 font-medium py-3 px-6 h-auto dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:text-white"
-          variant="outline"
+          id="analyze-again-btn"
+          className="bg-primary-500 hover:bg-primary-600 text-white font-medium py-4 px-6 h-auto text-lg shadow-lg transition-all transform hover:scale-105"
           onClick={onSearchAgain}
         >
-          <span className="material-icons mr-2">refresh</span>
-          <span>Search for another food</span>
+          <span className="material-icons mr-2">add_circle</span>
+          <span>Analyze Another Food</span>
         </Button>
       </div>
     </div>

@@ -25,6 +25,10 @@ interface SpeechRecognition extends EventTarget {
   onresult: (event: SpeechRecognitionEvent) => void;
   onerror: (event: SpeechRecognitionErrorEvent) => void;
   onend: () => void;
+  onaudiostart?: () => void;
+  onspeechstart?: () => void;
+  onspeechend?: () => void;
+  onnomatch?: () => void;
 }
 
 interface SpeechRecognitionEvent {
@@ -69,6 +73,7 @@ export function useSpeechRecognition({
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState('');
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // Initialize speech recognition
@@ -80,22 +85,64 @@ export function useSpeechRecognition({
     }
     
     const recognition = new SpeechRecognition();
-    recognition.continuous = false;
+    recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = language;
+    recognition.maxAlternatives = 3; // Get multiple alternatives for better accuracy
     
     recognition.onresult = (event: SpeechRecognitionEvent) => {
-      const latest = event.results[event.resultIndex];
-      const transcriptText = latest[0].transcript;
-      setTranscript(transcriptText);
+      // Get the most recent result
+      const latest = event.results[event.results.length - 1];
+      
+      // Get the most confident alternative
+      let bestTranscript = '';
+      let bestConfidence = 0;
+      
+      for (let i = 0; i < latest.length; i++) {
+        if (latest[i].confidence > bestConfidence) {
+          bestConfidence = latest[i].confidence;
+          bestTranscript = latest[i].transcript;
+        }
+      }
+      
+      setTranscript(bestTranscript);
       
       if (latest.isFinal) {
-        onResult(transcriptText);
+        // Clean up the transcript - remove extra spaces and capitalize first letter
+        const cleanTranscript = bestTranscript.trim();
+        const formattedTranscript = cleanTranscript.charAt(0).toUpperCase() + cleanTranscript.slice(1);
+        
+        // Clear any existing timeout
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+        
+        onResult(formattedTranscript);
+        stopListening();
+      } else if (bestTranscript.length > 0) {
+        // Auto-stop listening after a period of silence with some content
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+        
+        timeoutRef.current = setTimeout(() => {
+          if (bestTranscript.length > 0) {
+            // Clean up the transcript - remove extra spaces and capitalize first letter
+            const cleanTranscript = bestTranscript.trim();
+            const formattedTranscript = cleanTranscript.charAt(0).toUpperCase() + cleanTranscript.slice(1);
+            
+            onResult(formattedTranscript);
+            stopListening();
+          }
+        }, 2000); // Auto-stop after 2 seconds of silence
       }
     };
     
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      onError(`Speech recognition error: ${event.error}`);
+      // Don't treat "no-speech" as an error to show the user
+      if (event.error !== 'no-speech') {
+        onError(`Speech recognition error: ${event.error}`);
+      }
       setIsListening(false);
     };
     
@@ -103,9 +150,34 @@ export function useSpeechRecognition({
       setIsListening(false);
     };
     
+    // Additional event handlers for better UX
+    recognition.onaudiostart = () => {
+      // Audio capture has started
+      console.log('Audio capture started');
+    };
+    
+    recognition.onspeechstart = () => {
+      // Speech has been detected
+      console.log('Speech detected');
+    };
+    
+    recognition.onspeechend = () => {
+      // Speech has stopped being detected
+      console.log('Speech ended');
+    };
+    
+    recognition.onnomatch = () => {
+      // No speech was recognized
+      onError('Could not recognize what you said. Please try again.');
+    };
+    
     recognitionRef.current = recognition;
     
     return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      
       if (recognitionRef.current) {
         recognitionRef.current.abort();
       }
@@ -118,6 +190,19 @@ export function useSpeechRecognition({
         recognitionRef.current.start();
         setIsListening(true);
         setTranscript('');
+        
+        // Set a maximum listening time of 15 seconds
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+        }
+        
+        timeoutRef.current = setTimeout(() => {
+          if (isListening && transcript.length > 0) {
+            onResult(transcript);
+          }
+          stopListening();
+        }, 15000);
+        
       } catch (error) {
         onError(`Could not start speech recognition: ${error}`);
       }
@@ -127,8 +212,17 @@ export function useSpeechRecognition({
   };
 
   const stopListening = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    
     if (recognitionRef.current) {
-      recognitionRef.current.stop();
+      try {
+        recognitionRef.current.stop();
+      } catch (e) {
+        // Handle the case where stop is called when not listening
+      }
       setIsListening(false);
     }
   };
